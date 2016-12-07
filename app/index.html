@@ -1,0 +1,300 @@
+<!doctype html>
+<html ng-app="aemet">
+
+  <head>
+    <meta charset="utf-8">
+    <title>AEMET JS</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.css">
+    <link rel="stylesheet" href="css/bootstrap-material-design.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Condensed:300,400">
+    <link rel="stylesheet" href="css/ripples.min.css">
+    <link rel="stylesheet" href="css/weather-icons.min.css">
+    <link rel="stylesheet" href="css/custom.css">
+    <script src="js/jquery-1.12.4.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/angular.min.js"></script>
+    <script src="js/angular-route.min.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/controllers.js"></script>
+  </head>
+
+  <body ng-controller="SingleData as vm">
+
+    <header>
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12 text-center">
+            <h3>Fuente de datos: Agencia Estatal de Meteorología - AEMET. Gobierno de España</h3>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="container">
+      <div class="row">
+        <div class="col-xs-12 col-sm-6">
+          <select class="form-control"
+                  ng-model="selectedProvincia"
+                  ng-options="item.name for item in vm.dataprovincias"
+                  ng-change="vm.getLocalidades(selectedProvincia.id)">
+            <option value="" selected disabled>Elige provincia</option>
+          </select>
+        </div>
+        <div class="col-xs-12 col-sm-6">
+          <select class="form-control"
+                  ng-model="selectedLocalidad"
+                  ng-options="item.name for item in vm.datalocalidades"
+                  ng-change="vm.getDataLocalidad(selectedLocalidad.id)">
+            <option value="" selected disabled>Elige localidad</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12">
+          <h2>{{vm.datajson.root.nombre}}
+            <span ng-if="vm.datajson.root.nombre">&ndash;</span>
+            {{vm.datajson.root.provincia}}
+          </h2>
+
+          <select class="form-control"
+                  ng-model="selected"
+                  ng-options="item.__fecha for item in vm.datajson.root.prediccion.dia">
+            <option value="" selected disabled>Elige fecha</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="row"
+        ng-repeat="dia in vm.datajson.root.prediccion.dia"
+        ng-if="dia.__fecha == selected.__fecha">
+
+        <div class="col-md-4 col-sm-6 col-xs-12">
+          <div class="panel panel-primary">
+            <div class="panel-heading text-uppercase text-center">Temperatura</div>
+            <div class="panel-body">
+              <div class="col-xs-2">
+                <i class="wi wi-thermometer"></i>
+              </div>
+              <div class="col-xs-4">
+                <div class="maxima">{{dia.temperatura.maxima}} ºC</div>
+              </div>
+              <div class="col-xs-4">
+                <div class="minima">{{dia.temperatura.minima}} ºC</div>
+              </div>
+              <div class="col-xs-2">
+                <a ng-if="dia.temperatura.dato" href="#modal-temperatura-{{dia.__fecha}}" data-toggle="modal"><i class="fa fa-plus-square-o" aria-hidden="true"></i></a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Modal -->
+        <div ng-if="dia.temperatura.dato" id="modal-temperatura-{{dia.__fecha}}" class="modal fade" role="dialog">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title text-uppercase">Temperatura - {{selected.__fecha}}</h4>
+              </div>
+              <div class="modal-body">
+                <p ng-repeat="dato in dia.temperatura.dato track by $index">
+                  <span ng-if="dato.__hora == 06 && dato.text">00:00 h - 06:00 h &nbsp;&nbsp;&nbsp; <i class="wi wi-thermometer"></i> {{dato.text}} ºC</span>
+                  <span ng-if="dato.__hora == 12 && dato.text">06:00 h - 12:00 h &nbsp;&nbsp;&nbsp; <i class="wi wi-thermometer"></i> {{dato.text}} ºC</span>
+                  <span ng-if="dato.__hora == 18 && dato.text">12:00 h - 18:00 h &nbsp;&nbsp;&nbsp; <i class="wi wi-thermometer"></i> {{dato.text}} ºC</span>
+                  <span ng-if="dato.__hora == 24 && dato.text">18:00 h - 24:00 h &nbsp;&nbsp;&nbsp; <i class="wi wi-thermometer"></i> {{dato.text}} ºC</span>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- /Modal -->
+
+        <div class="col-md-4 col-sm-6 col-xs-12">
+          <div class="panel panel-primary">
+            <div class="panel-heading text-uppercase text-center">Sensación térmica</div>
+            <div class="panel-body">
+              <div class="col-xs-2">
+                <i class="wi wi-thermometer"></i>
+              </div>
+              <div class="col-xs-4">
+                <div class="maxima">{{dia.sens_termica.maxima}} ºC</div>
+              </div>
+              <div class="col-xs-4">
+                <div class="minima">{{dia.sens_termica.minima}} ºC</div>
+              </div>
+              <div class="col-xs-2">
+                <a ng-if="dia.sens_termica.dato" href="#modal-sensacion-termica-{{dia.__fecha}}" data-toggle="modal"><i class="fa fa-plus-square-o" aria-hidden="true"></i></a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Modal -->
+        <div ng-if="dia.sens_termica.dato" id="modal-sensacion-termica-{{dia.__fecha}}" class="modal fade" role="dialog">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title text-uppercase">Sensación térmica - {{selected.__fecha}}</h4>
+              </div>
+              <div class="modal-body">
+                <p ng-repeat="dato in dia.sens_termica.dato track by $index">
+                  <span ng-if="dato.__hora == 06 && dato.text">00:00 h - 06:00 h &nbsp;&nbsp;&nbsp; <i class="wi wi-thermometer"></i> {{dato.text}} ºC</span>
+                  <span ng-if="dato.__hora == 12 && dato.text">06:00 h - 12:00 h &nbsp;&nbsp;&nbsp; <i class="wi wi-thermometer"></i> {{dato.text}} ºC</span>
+                  <span ng-if="dato.__hora == 18 && dato.text">12:00 h - 18:00 h &nbsp;&nbsp;&nbsp; <i class="wi wi-thermometer"></i> {{dato.text}} ºC</span>
+                  <span ng-if="dato.__hora == 24 && dato.text">18:00 h - 24:00 h &nbsp;&nbsp;&nbsp; <i class="wi wi-thermometer"></i> {{dato.text}} ºC</span>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- /Modal -->
+
+        <div class="col-md-4 col-sm-6 col-xs-12">
+          <div class="panel panel-primary">
+            <div class="panel-heading text-uppercase text-center">Humedad relativa</div>
+            <div class="panel-body">
+              <div class="col-xs-2">
+                <i class="wi wi-humidity"></i>
+              </div>
+              <div class="col-xs-4">
+                <div class="maxima">{{dia.humedad_relativa.maxima}} ºC</div>
+              </div>
+              <div class="col-xs-4">
+                <div class="minima">{{dia.humedad_relativa.minima}} ºC</div>
+              </div>
+              <div class="col-xs-2">
+                <a ng-if="dia.humedad_relativa.dato" href="#modal-humedad-relativa-{{dia.__fecha}}" data-toggle="modal"><i class="fa fa-plus-square-o" aria-hidden="true"></i></a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Modal -->
+        <div ng-if="dia.humedad_relativa.dato" id="modal-humedad-relativa-{{dia.__fecha}}" class="modal fade" role="dialog">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title text-uppercase">Humedad relativa - {{selected.__fecha}}</h4>
+              </div>
+              <div class="modal-body">
+                <p ng-repeat="dato in dia.humedad_relativa.dato track by $index">
+                  <span ng-if="dato.__hora == 06 && dato.text">00:00 h - 06:00 h &nbsp;&nbsp;&nbsp; <i class="wi wi-thermometer"></i> {{dato.text}} ºC</span>
+                  <span ng-if="dato.__hora == 12 && dato.text">06:00 h - 12:00 h &nbsp;&nbsp;&nbsp; <i class="wi wi-thermometer"></i> {{dato.text}} ºC</span>
+                  <span ng-if="dato.__hora == 18 && dato.text">12:00 h - 18:00 h &nbsp;&nbsp;&nbsp; <i class="wi wi-thermometer"></i> {{dato.text}} ºC</span>
+                  <span ng-if="dato.__hora == 24 && dato.text">18:00 h - 24:00 h &nbsp;&nbsp;&nbsp; <i class="wi wi-thermometer"></i> {{dato.text}} ºC</span>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- /Modal -->
+
+        <div class="col-md-4 col-sm-6 col-xs-12">
+          <div class="panel panel-primary">
+            <div class="panel-heading text-uppercase text-center">Viento</div>
+            <div class="panel-body">
+              <div class="col-xs-2">
+                <i class="wi wi-strong-wind"></i>
+              </div>
+              <div class="col-xs-8 text-center">
+                <span ng-if="dia.viento.direccion && dia.viento.direccion != 'C'">
+                  <div class="neutro">{{dia.viento.direccion}} {{dia.viento.velocidad}} km/h</div>
+                </span>
+                <span ng-if="!dia.viento.direccion || dia.viento.direccion == 'C'">
+                  <div class="neutro">0 km/h</div>
+                </span>
+              </div>
+              <div class="col-xs-2">
+                <a ng-if="dia.prob_precipitacion" href="#modal-viento-{{dia.__fecha}}" data-toggle="modal"><i class="fa fa-plus-square-o" aria-hidden="true"></i></a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Modal -->
+        <div id="modal-viento-{{dia.__fecha}}" class="modal fade" role="dialog">
+          <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title text-uppercase">Viento - {{selected.__fecha}}</h4>
+              </div>
+              <div class="modal-body">
+                <h3>Opción no desarrollada</h3>
+                <h4>Se ha desarrollado la temperatura, sensación térmica y humedad</h4>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- /Modal -->
+
+        <div class="col-md-4 col-sm-6 col-xs-12">
+          <div class="panel panel-primary">
+            <div class="panel-heading text-uppercase text-center">Probabilidad precipitación</div>
+            <div class="panel-body">
+              <div class="col-xs-2">
+                <i class="wi wi-humidity"></i>
+              </div>
+              <!-- sólo muestra un dato, días lejanos -->
+              <span ng-if="!vm.isArrayOrObject(dia.prob_precipitacion)">
+              <div class="col-xs-8 text-center">
+                <div class="neutro">{{dia.prob_precipitacion}} %</div>
+              </div>
+              </span>
+              <!-- se muestra más de un dato -->
+              <span ng-if="vm.isArrayOrObject(dia.prob_precipitacion)">
+              <div class="col-xs-8 text-center">
+                <span ng-if="vm.isToday(dia.__fecha) && dia.prob_precipitacion[0]">
+                  <div class="neutro">{{dia.prob_precipitacion[0].text}} %</div>
+                </span>
+                <span ng-if="!vm.isToday(dia.__fecha)">
+                  <div class="neutro">{{dia.prob_precipitacion[0].text}} %</div>
+                </span>
+              </div>
+              </span>
+              <div class="col-xs-2">
+                <a ng-if="dia.prob_precipitacion" href="#modal-probabilidad-precipitacion-{{dia.__fecha}}" data-toggle="modal"><i class="fa fa-plus-square-o" aria-hidden="true"></i></a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Modal -->
+        <div id="modal-probabilidad-precipitacion-{{dia.__fecha}}" class="modal fade" role="dialog">
+          <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title text-uppercase">Probabilidad precipitación - {{selected.__fecha}}</h4>
+              </div>
+              <div class="modal-body">
+                <h3>Opción no desarrollada</h3>
+                <h4>Se ha desarrollado la temperatura, sensación térmica y humedad</h4>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- /Modal -->
+
+      </div>
+    </div>
+
+    <footer>
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12 text-center">
+            <p><a href="http://ivanalbizu.eu/">Desarrollado Iván Albizu</a></p>
+            <p><a href="http://www.aemet.es/es/eltiempo/prediccion/municipios/ayuda" target="_blank">Intepretación de datos AEMET</a></p>
+            <a href="https://erikflowers.github.io/weather-icons/" target="_blank">Weather icons</a>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+  </body>
+</html>

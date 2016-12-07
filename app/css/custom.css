@@ -1,0 +1,59 @@
+html {
+  position: relative;
+  min-height: 100%;
+}
+body {
+  font: 1.6rem;
+  margin-bottom: 120px;
+  font-family: 'Roboto Condensed', sans-serif !important;
+}
+header h3 {
+  line-height: 30px;
+  font-size: 20px;
+  margin-bottom: 30px;
+  font-family: 'Roboto Condensed', sans-serif !important;
+}
+footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 120px;
+}
+footer .container {
+  margin-top: 30px;
+}
+
+a:focus {
+  outline: none;
+}
+.panel-heading {
+  color: rgba(255,255,255,1) !important;
+}
+.modal-body {
+  font-size: 40px;
+}
+
+.wi {
+  font-size: 40px;
+  color: #009688;
+}
+.fa {
+  font-size: 26px;
+  line-height: 34px;
+  color: #009688;
+}
+.maxima,
+.minima,
+.neutro {
+  font-size: 24px;
+  text-align: right;
+}
+.neutro {
+  text-align: center;
+}
+.maxima {
+  color: #FC354C;
+}
+.minima {
+  color: #0ABFBC;
+}
